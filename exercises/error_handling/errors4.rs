@@ -3,7 +3,6 @@
 // Execute `rustlings hint errors4` or use the `hint` watch subcommand for a
 // hint.
 
-
 #[derive(PartialEq, Debug)]
 struct PositiveNonzeroInteger(u64);
 
