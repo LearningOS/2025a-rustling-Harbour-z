@@ -2,6 +2,8 @@
 //!
 //! You should modify this file to make both exercises pass.
 
+use std::fmt::format;
+
 fn main() {
     // In tests7, we should set up an environment variable
     // called `TEST_FOO`. Print in the standard output to let
@@ -19,4 +21,7 @@ fn main() {
     // In tests8, we should enable "pass" feature to make the
     // testcase return early. Fill in the command to tell
     // Cargo about that.
+    let x = format!("rustc-cfg=feature=\"pass\"");
+    println!("cargo:{}",x);
+
 }
