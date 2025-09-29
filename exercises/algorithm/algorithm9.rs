@@ -2,11 +2,9 @@
 	heap
 	This question requires you to implement a binary heap function
 */
-// I AM NOT DONE
 
 use std::cmp::Ord;
 use std::default::Default;
-
 pub struct Heap<T>
 where
     T: Default,
@@ -15,7 +13,6 @@ where
     items: Vec<T>,
     comparator: fn(&T, &T) -> bool,
 }
-
 impl<T> Heap<T>
 where
     T: Default,
@@ -27,70 +24,105 @@ where
             comparator,
         }
     }
-
     pub fn len(&self) -> usize {
         self.count
     }
-
     pub fn is_empty(&self) -> bool {
         self.len() == 0
     }
-
     pub fn add(&mut self, value: T) {
-        //TODO
+        if self.count + 1 < self.items.len() {
+            self.items[self.count + 1] = value;
+        } else {
+            self.items.push(value);
+        }
+        self.count += 1;
+        self.bubble_up(self.count);
     }
-
+    fn bubble_up(&mut self, mut idx: usize) {
+        while idx > 1 {
+            let parent_idx = self.parent_idx(idx);
+            if (self.comparator)(&self.items[idx], &self.items[parent_idx]) {
+                self.items.swap(idx, parent_idx);
+                idx = parent_idx;
+            } else {
+                break;
+            }
+        }
+    }
     fn parent_idx(&self, idx: usize) -> usize {
         idx / 2
     }
-
     fn children_present(&self, idx: usize) -> bool {
         self.left_child_idx(idx) <= self.count
     }
-
     fn left_child_idx(&self, idx: usize) -> usize {
         idx * 2
     }
-
     fn right_child_idx(&self, idx: usize) -> usize {
-        self.left_child_idx(idx) + 1
+        idx * 2 + 1
     }
-
     fn smallest_child_idx(&self, idx: usize) -> usize {
-        //TODO
-		0
+        let left = self.left_child_idx(idx);
+        let right = self.right_child_idx(idx);
+        if right > self.count {
+            left
+        } else {
+            if (self.comparator)(&self.items[left], &self.items[right]) {
+                left
+            } else {
+                right
+            }
+        }
+    }
+    pub fn pop(&mut self) -> Result<T, &str> {
+        if self.is_empty() {
+            return Err("Heap is empty");
+        }
+        let result = std::mem::take(&mut self.items[1]);
+        if self.count == 1 {
+            self.count = 0;
+            return Ok(result);
+        }
+        let last_item = self.items.pop().unwrap();
+        self.items[1] = last_item;
+        self.count -= 1;
+        self.bubble_down(1);
+        Ok(result)
+    }
+    fn bubble_down(&mut self, mut idx: usize) {
+        while self.children_present(idx) {
+            let child_idx = self.smallest_child_idx(idx);
+            if (self.comparator)(&self.items[child_idx], &self.items[idx]) {
+                self.items.swap(idx, child_idx);
+                idx = child_idx;
+            } else {
+                break;
+            }
+        }
     }
 }
-
 impl<T> Heap<T>
 where
     T: Default + Ord,
 {
-    /// Create a new MinHeap
     pub fn new_min() -> Self {
         Self::new(|a, b| a < b)
     }
-
-    /// Create a new MaxHeap
     pub fn new_max() -> Self {
         Self::new(|a, b| a > b)
     }
 }
-
 impl<T> Iterator for Heap<T>
 where
     T: Default,
 {
     type Item = T;
-
     fn next(&mut self) -> Option<T> {
-        //TODO
-		None
+        self.pop().ok()
     }
 }
-
 pub struct MinHeap;
-
 impl MinHeap {
     #[allow(clippy::new_ret_no_self)]
     pub fn new<T>() -> Heap<T>
@@ -100,9 +132,7 @@ impl MinHeap {
         Heap::new(|a, b| a < b)
     }
 }
-
 pub struct MaxHeap;
-
 impl MaxHeap {
     #[allow(clippy::new_ret_no_self)]
     pub fn new<T>() -> Heap<T>

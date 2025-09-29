@@ -2,53 +2,96 @@
 	graph
 	This problem requires you to implement a basic graph functio
 */
-// I AM NOT DONE
+
+/*
+    graph
+    This problem requires you to implement a basic graph function
+*/
 
 use std::collections::{HashMap, HashSet};
 use std::fmt;
+
 #[derive(Debug, Clone)]
 pub struct NodeNotInGraph;
+
 impl fmt::Display for NodeNotInGraph {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "accessing a node that is not in the graph")
     }
 }
+
 pub struct UndirectedGraph {
     adjacency_table: HashMap<String, Vec<(String, i32)>>,
 }
+
 impl Graph for UndirectedGraph {
-    fn new() -> UndirectedGraph {
+    fn new() -> Self {
         UndirectedGraph {
             adjacency_table: HashMap::new(),
         }
     }
+
     fn adjacency_table_mutable(&mut self) -> &mut HashMap<String, Vec<(String, i32)>> {
         &mut self.adjacency_table
     }
+
     fn adjacency_table(&self) -> &HashMap<String, Vec<(String, i32)>> {
         &self.adjacency_table
     }
+
     fn add_edge(&mut self, edge: (&str, &str, i32)) {
-        //TODO
+        let (from, to, weight) = edge;
+
+        // 确保两个节点都存在于图中
+        self.add_node(from);
+        self.add_node(to);
+
+        // 添加从 from 到 to 的边
+        self.adjacency_table_mutable()
+            .entry(from.to_string())
+            .or_insert_with(Vec::new)
+            .push((to.to_string(), weight));
+
+        // 添加从 to 到 from 的边（因为是无向图）
+        self.adjacency_table_mutable()
+            .entry(to.to_string())
+            .or_insert_with(Vec::new)
+            .push((from.to_string(), weight));
     }
 }
+
 pub trait Graph {
     fn new() -> Self;
     fn adjacency_table_mutable(&mut self) -> &mut HashMap<String, Vec<(String, i32)>>;
     fn adjacency_table(&self) -> &HashMap<String, Vec<(String, i32)>>;
+
+    /// Adds a node to the graph
+    /// Returns true if the node was newly added, false if it already existed
     fn add_node(&mut self, node: &str) -> bool {
-        //TODO
-		true
+        if self.contains(node) {
+            return false; // 已存在
+        }
+        self.adjacency_table_mutable()
+            .insert(node.to_string(), Vec::new());
+        true
     }
-    fn add_edge(&mut self, edge: (&str, &str, i32)) {
-        //TODO
-    }
+
+    /// Adds an edge between two nodes with a given weight
+    fn add_edge(&mut self, edge: (&str, &str, i32));
+
+    /// Checks if the graph contains a node
     fn contains(&self, node: &str) -> bool {
         self.adjacency_table().get(node).is_some()
     }
+
+    /// Returns a set of all nodes in the graph
     fn nodes(&self) -> HashSet<&String> {
         self.adjacency_table().keys().collect()
     }
+
+    /// Returns a list of all edges in the graph
+    /// Each edge is represented as (&from, &to, weight)
+    /// Note: Since the graph is undirected, each edge appears twice unless deduplicated
     fn edges(&self) -> Vec<(&String, &String, i32)> {
         let mut edges = Vec::new();
         for (from_node, from_node_neighbours) in self.adjacency_table() {
@@ -59,6 +102,7 @@ pub trait Graph {
         edges
     }
 }
+
 #[cfg(test)]
 mod test_undirected_graph {
     use super::Graph;
