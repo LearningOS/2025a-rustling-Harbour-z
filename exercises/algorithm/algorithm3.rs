@@ -3,10 +3,22 @@
 	This problem requires you to implement a sorting algorithm
 	you can use bubble sorting, insertion sorting, heap sorting, etc.
 */
-// I AM NOT DONE
 
-fn sort<T>(array: &mut [T]){
+use std::vec;
+
+fn sort<T: PartialOrd>(array: &mut [T]){
 	//TODO
+    if array.len() <= 1 {
+        return;
+    }
+    let len = array.len();
+    for i in 0..len-1 {
+        for j in 0..len-1-i{
+            if array[j] > array[j+1] {
+                array.swap(j, j+1);
+            }
+        }
+    }
 }
 #[cfg(test)]
 mod tests {
